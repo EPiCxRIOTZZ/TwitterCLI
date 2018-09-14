@@ -1,0 +1,4 @@
+rm -rf PackageZIP
+zip -r OSX.zip ./*
+mkdir PackageZIP
+mv OSX.zip PackageZIP/

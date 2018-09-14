@@ -5,17 +5,16 @@ import sys
 import config
 import ssl
 import json
-with open('DontTouch.json') as data_file:
+with open('Keys.json') as data_file:
     data = json.load(data_file)
 # resize the terminal window
 ssl._create_default_https_context = ssl._create_unverified_context
 # loading the config file for the oAuth keys
 
-
-twitter = Twitter(auth = OAuth(config.access_key,
-                  config.access_secret,
-                  config.consumer_key,
-config.consumer_secret))
+twitter = Twitter(auth = OAuth(data["access_key"],
+                  data["access_secret"],
+                  data["consumer_key"],
+                  data["consumer_secret"]))
 
 user = "iSn0we"
 results = twitter.statuses.user_timeline(screen_name = user)

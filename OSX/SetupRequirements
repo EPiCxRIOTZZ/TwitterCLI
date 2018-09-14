@@ -1,6 +1,29 @@
 #!/bin/sh
 clear
 
+function writeJSON {
+  arr=();
+
+while read x y;
+do
+    arr=("${arr[@]}" $x $y)
+done
+
+vars=(${arr[@]})
+len=${#arr[@]}
+
+printf "{"
+for (( i=0; i<len; i+=2 ))
+do
+    printf "\"${vars[i]}\": ${vars[i+1]}"
+    if [ $i -lt $((len-2)) ] ; then
+        printf ", "
+    fi
+done
+printf "}"
+echo
+}
+
 function readJson {
   UNAMESTR=`uname`
   if [[ "$UNAMESTR" == 'Linux' ]]; then
@@ -25,7 +48,8 @@ echo "
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 | 1.) Install for OSX    |
 | 2.) Check 4 updates    |
-| 2.) Exit	         |
+| 3.) Setup Access Keys  |
+| 0.) Exit	         |
 #~~~~~~~~~~~~~~~~~~~~~~~~#\n"
 tput bold
 tput setaf 6
@@ -36,7 +60,7 @@ if [ "$choice" == "1" ]; then
     pip install -r requirements.txt
 elif [ "$choice" == "2" ]; then
     echo "checking for updates..."
-    NewestVersion=$(curl -s 'https://isn0we.github.io/TwitterCLI/DontTouch.json' | jq -r '.version')
+    NewestVersion=$(curl -s 'https://isn0we.github.io/TwitterCLI/OSX/DontTouch.json' | jq -r '.version')
     echo "The newest version aviable is: $NewestVersion"
     InstalledV=$(readJson DontTouch.json version)
     echo "Your installed version is: $InstalledV"
@@ -57,6 +81,29 @@ elif [ "$choice" == "2" ]; then
 	echo "Installed successfully!"
     fi
 elif [ "$choice" == "3" ]; then
+    clear
+    toilet -f future "Setup Access Keys" --filter gay
+    echo "1. Go to https://apps.twitter.com and create a new Application."
+    echo "2. Open the Access token site, so you can see all your access tokens."
+    echo "3. When you're ready to start, hit enter."
+    read
+    read -p "Access token ==>" Access_token
+    read -p "Access Secret ==>" access_secret
+    read -p "Consumer Key ==>" consumer_key
+    read -p "Consumer Secret ==>" consumer_secret
+    echo "Writign to config json..."
+    cat >./Keys.json <<EOF
+    {
+      "access_key": "$Access_token",
+      "access_secret": "$access_secret",
+      "consumer_key": "$consumer_key",
+      "consumer_secret": "$consumer_secret"
+    }
+EOF
+    echo "Wrote to Key config file."
+    echo "NEVER SHARE THIS FILE WITH ANYBODY. THIS IS LIKE GIVING YOUR PASSWORD OUT!"
+
+elif [ "$choice" == "0" ]; then
 
     clear
     exit
