@@ -12,10 +12,10 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # loading the config file for the oAuth keys
 
 
-twitter = Twitter(auth = OAuth("912422599464022017-zc5a7GJ2ykgjE8g2cWwS6wKaLywJNfE",
-                  "PajETdkWZclnPSOllC12YUk9A3bruLVJH1mnd3YssNeIw",
-                  "zZEQMgIxAwq5WE0m8srSFgb73",
-                  "dINR3bWgMSfkFUsUEu0NbczQcLO6kaPaAFy8WOPC4StCmb0lK2"))
+twitter = Twitter(auth = OAuth(config.access_key,
+                  config.access_secret,
+                  config.consumer_key,
+                  config.consumer_secret))
 
 user = "iSn0we"
 results = twitter.statuses.user_timeline(screen_name = user)

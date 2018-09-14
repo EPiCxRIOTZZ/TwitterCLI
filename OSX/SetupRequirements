@@ -50,14 +50,11 @@ elif [ "$choice" == "2" ]; then
       	tput bold
       	tput setaf 2
       	echo "Downloading newer version of TwitterCLI..."
-        echo "THIS MAY TAKE A WHILE, PLEASE BE PATIENT WHILE ______ IS RUNNING..."
-        # While process is running...
-        while git clone > /dev/null; do
-            printf  "▓"
-            sleep 1
-        done
-        printf "] done!"
-
+        wget https://isn0we.github.io/TwitterCLI/OSX/PackageZIP/OSX.zip
+	echo "Downloaded. installing..."
+	unzip -qq -o OSX.zip
+	rm -rf OSX.zip
+	echo "Installed successfully!"
     fi
 elif [ "$choice" == "3" ]; then
 
