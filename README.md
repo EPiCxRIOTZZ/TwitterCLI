@@ -1,5 +1,6 @@
 # TwitterCLI
-
+> TwitterCLI 1.0.0
+![Demo](https://raw.githubusercontent.com/iSn0we/TwitterCLI/master/demo.png)
 # First step
 Works only on 15" devices, like the macbook pro right now. will fix it tomorrow.
 to get this to work, replace your keys with your keys from apps.twitter.com
