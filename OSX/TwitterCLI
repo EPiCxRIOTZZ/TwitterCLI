@@ -15,11 +15,11 @@ ssl._create_default_https_context = ssl._create_unverified_context
 twitter = Twitter(auth = OAuth(config.access_key,
                   config.access_secret,
                   config.consumer_key,
-                  config.consumer_secret))
+config.consumer_secret))
 
 user = "iSn0we"
 results = twitter.statuses.user_timeline(screen_name = user)
-
+statuses = twitter.statuses.home_timeline(count = 50)
 
 class MyTestApp(npyscreen.NPSAppManaged):
     def onStart(self):
@@ -46,20 +46,30 @@ class MyTestApp(npyscreen.NPSAppManaged):
 
 class MainForm(npyscreen.FormWithMenus):
     def create(self):
+        self.InteractionMenu = self.add_menu(name="Interaction Menu", shortcut="^O")
+        self.InteractionMenu.addItemsFromList([
+            ("My Stats", self.whenDisplayText, None, None, ("Your followers: \nYou follow:\nYour impressions:\nYour tweets:",)),
+            ("Activity",   self.whenJustBeep, "e"),
+            ("Direct Messages", self.exit_application, "^c"),
+        ])
+
 
         self.m1 = self.add_menu(name="Main Menu", shortcut="^M")
         self.m1.addItemsFromList([
-            ("Profile", self.whenDisplayText, None, None, ("some text",)),
+            ("My Stats", self.whenDisplayText, None, None, ("Your followers: \nYou follow:\nYour impressions:\nYour tweets:",)),
             ("Activity",   self.whenJustBeep, "e"),
             ("Direct Messages", self.exit_application, "^c"),
         ])
         #Draw the Control Box
-        BottomBar = self.add(npyscreen.BoxTitle, max_width=197, rely=66, max_height=10 ,name="Tab: one box down | Shift+Tab: one box up")
         y = 1;
-        for status in results:
-            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=status["created_at"])
+        for status in statuses:
+            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=("" + status["user"]["screen_name"] + "\t" + status["created_at"] ))
             tweetWindow.values = [status["text"].encode("ascii", "ignore")]
             y = y + 1
+#        for status in results:
+#            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=status["created_at"])
+#            tweetWindow.values = [status["text"].encode("ascii", "ignore")]
+#            y = y + 1
         t2 = self.add(npyscreen.BoxTitle, max_width=35, relx=200, max_height=35, rely=0,name="Direct Messages:")
         t2.entry_widget.scroll_exit = True
         t2.values = ["The iOS Community",
