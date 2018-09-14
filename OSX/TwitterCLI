@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+import npyscreen, curses
+from twitter import *
+import sys
+import config
+import ssl
+import json
+with open('DontTouch.json') as data_file:
+    data = json.load(data_file)
+# resize the terminal window
+ssl._create_default_https_context = ssl._create_unverified_context
+# loading the config file for the oAuth keys
+
+
+twitter = Twitter(auth = OAuth("912422599464022017-zc5a7GJ2ykgjE8g2cWwS6wKaLywJNfE",
+                  "PajETdkWZclnPSOllC12YUk9A3bruLVJH1mnd3YssNeIw",
+                  "zZEQMgIxAwq5WE0m8srSFgb73",
+                  "dINR3bWgMSfkFUsUEu0NbczQcLO6kaPaAFy8WOPC4StCmb0lK2"))
+
+user = "iSn0we"
+results = twitter.statuses.user_timeline(screen_name = user)
+
+
+class MyTestApp(npyscreen.NPSAppManaged):
+    def onStart(self):
+
+        # When Application starts, set up the Forms that will be used.
+        # These two forms are persistent between each edit.
+        self.addForm("MAIN",       MainForm, name="Timeline", color="IMPORTANT",)
+        self.addForm("SECOND",     MainForm, name="Activity", color="WARNING",  )
+        # This one will be re-created each time it is edited.
+        self.addFormClass("THIRD", MainForm, name="Timeline", color="CRITICAL",)
+
+    def onCleanExit(self):
+        npyscreen.notify_wait("Logging out...")
+
+    def change_form(self, name):
+        # Switch forms.  NB. Do *not* call the .edit() method directly (which
+        # would lead to a memory leak and ultimately a recursion error).
+        # Instead, use the method .switchForm to change forms.
+        self.switchForm(name)
+
+        # By default the application keeps track of every form visited.
+        # There's no harm in this, but we don't need it so:
+        self.resetHistory()
+
+class MainForm(npyscreen.FormWithMenus):
+    def create(self):
+
+        self.m1 = self.add_menu(name="Main Menu", shortcut="^M")
+        self.m1.addItemsFromList([
+            ("Profile", self.whenDisplayText, None, None, ("some text",)),
+            ("Activity",   self.whenJustBeep, "e"),
+            ("Direct Messages", self.exit_application, "^c"),
+        ])
+        #Draw the Control Box
+        BottomBar = self.add(npyscreen.BoxTitle, max_width=197, rely=66, max_height=10 ,name="Tab: one box down | Shift+Tab: one box up")
+        y = 1;
+        for status in results:
+            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=status["created_at"])
+            tweetWindow.values = [status["text"].encode("ascii", "ignore")]
+            y = y + 1
+        t2 = self.add(npyscreen.BoxTitle, max_width=35, relx=200, max_height=35, rely=0,name="Direct Messages:")
+        t2.entry_widget.scroll_exit = True
+        t2.values = ["The iOS Community",
+            "Crapple Inc.",
+            "JohnVS #OrkSec",
+            "GeoSn0w",
+            "EvenDev",
+            "Aero"]
+
+        t3 = self.add(npyscreen.BoxTitle, max_width=35, relx=200, max_height=10 ,name="Menu:")
+        t3.entry_widget.scroll_exit = True
+        t3.values = ["Timeline",
+            "Activity",
+            "Profile",
+            "Lists",
+            "Search",
+            "Settings"]
+
+
+
+        self.add_handlers({"^T": self.change_forms})
+
+    def on_ok(self):
+        # Exit the application if the OK button is pressed.
+        self.parentApp.switchForm(None)
+
+    def change_forms(self, *args, **keywords):
+        if self.name == "Timeline":
+            change_to = "SECOND"
+        elif self.name == "Activity":
+            change_to = "THIRD"
+        else:
+            change_to = "MAIN"
+
+        # Tell the MyTestApp object to change forms.
+        self.parentApp.change_form(change_to)
+
+    def whenDisplayText(self, argument):
+       npyscreen.notify_confirm(argument)
+
+    def whenJustBeep(self):
+        curses.beep()
+
+    def exit_application(self):
+        curses.beep()
+        self.parentApp.setNextForm(None)
+        self.editing = False
+        self.parentApp.switchFormNow()
+
+
+def main():
+    TA = MyTestApp()
+    TA.run()
+
+
+if __name__ == '__main__':
+    main()

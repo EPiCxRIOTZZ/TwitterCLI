@@ -1,0 +1,75 @@
+#!/bin/sh
+clear
+
+function readJson {
+  UNAMESTR=`uname`
+  if [[ "$UNAMESTR" == 'Linux' ]]; then
+    SED_EXTENDED='-r'
+  elif [[ "$UNAMESTR" == 'Darwin' ]]; then
+    SED_EXTENDED='-E'
+  fi;
+
+  VALUE=`grep -m 1 "\"${2}\"" ${1} | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?//'`
+
+  if [ ! "$VALUE" ]; then
+    echo "Error: Cannot find \"${2}\" in ${1}" >&2;
+    exit 1;
+  else
+    echo $VALUE ;
+  fi;
+}
+
+function ask_user() {
+toilet -f future "TwitterCLI installer" --filter gay
+echo "
+#~~~~~~~~~~~~~~~~~~~~~~~~#
+| 1.) Install for OSX    |
+| 2.) Check 4 updates    |
+| 2.) Exit	         |
+#~~~~~~~~~~~~~~~~~~~~~~~~#\n"
+tput bold
+tput setaf 6
+read -e -p "==> " choice
+tput sgr0
+if [ "$choice" == "1" ]; then
+
+    pip install -r requirements.txt
+elif [ "$choice" == "2" ]; then
+    echo "checking for updates..."
+    NewestVersion=$(curl -s 'https://isn0we.github.io/TwitterCLI/DontTouch.json' | jq -r '.version')
+    echo "The newest version aviable is: $NewestVersion"
+    InstalledV=$(readJson DontTouch.json version)
+    echo "Your installed version is: $InstalledV"
+    if [ "$InstalledV" == "$NewestVersion" ]; then
+        echo "You Are up to date!"
+    else
+      	echo "A new TwitterCLI is aviable! You will be prompted to a update screen in a few seconds."
+      	sleep 5
+      	clear
+      	toilet -f future "TwitterCLI Update" --filter gay
+      	tput bold
+      	tput setaf 2
+      	echo "Downloading newer version of TwitterCLI..."
+        echo "THIS MAY TAKE A WHILE, PLEASE BE PATIENT WHILE ______ IS RUNNING..."
+        # While process is running...
+        while git clone > /dev/null; do
+            printf  "▓"
+            sleep 1
+        done
+        printf "] done!"
+
+    fi
+elif [ "$choice" == "3" ]; then
+
+    clear
+    exit
+
+else
+
+    echo "Please select 1, 2, or 3." && sleep 3
+    clear && ask_user
+
+fi
+}
+
+ask_user
