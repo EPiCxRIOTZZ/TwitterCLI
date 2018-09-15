@@ -87,10 +87,10 @@ elif [ "$choice" == "3" ]; then
     echo "2. Open the Access token site, so you can see all your access tokens."
     echo "3. When you're ready to start, hit enter."
     read
-    read -p "Access token ==>" Access_token
-    read -p "Access Secret ==>" access_secret
-    read -p "Consumer Key ==>" consumer_key
-    read -p "Consumer Secret ==>" consumer_secret
+    read -p "Access token ==> " Access_token
+    read -p "Access Secret ==> " access_secret
+    read -p "Consumer Key ==> " consumer_key
+    read -p "Consumer Secret ==> " consumer_secret
     echo "Writign to config json..."
     cat >./Keys.json <<EOF
     {

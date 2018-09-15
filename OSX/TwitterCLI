@@ -3,6 +3,7 @@ import npyscreen, curses
 from twitter import *
 import sys
 import config
+import os
 import ssl
 import json
 with open('Keys.json') as data_file:
@@ -10,7 +11,11 @@ with open('Keys.json') as data_file:
 # resize the terminal window
 ssl._create_default_https_context = ssl._create_unverified_context
 # loading the config file for the oAuth keys
-
+rows, columns = os.popen('stty size', 'r').read().split()
+# defining window vars
+colint = int(columns)
+tweetwindowwidth = colint - 41
+BoxTitlewidth = colint - 38
 twitter = Twitter(auth = OAuth(data["access_key"],
                   data["access_secret"],
                   data["consumer_key"],
@@ -62,14 +67,14 @@ class MainForm(npyscreen.FormWithMenus):
         #Draw the Control Box
         y = 1;
         for status in statuses:
-            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=("" + status["user"]["screen_name"] + "\t" + status["created_at"] ))
+            tweetWindow = self.add(npyscreen.BoxTitle, max_width=tweetwindowwidth, rely=y, max_height=10 ,name=("" + status["user"]["screen_name"] + "\t" + status["created_at"] ))
             tweetWindow.values = [status["text"].encode("ascii", "ignore")]
             y = y + 1
 #        for status in results:
 #            tweetWindow = self.add(npyscreen.BoxTitle, max_width=197, rely=y, max_height=10 ,name=status["created_at"])
 #            tweetWindow.values = [status["text"].encode("ascii", "ignore")]
 #            y = y + 1
-        t2 = self.add(npyscreen.BoxTitle, max_width=35, relx=200, max_height=35, rely=0,name="Direct Messages:")
+        t2 = self.add(npyscreen.BoxTitle, max_width=35, relx=BoxTitlewidth, max_height=35, rely=0,name="Direct Messages:")
         t2.entry_widget.scroll_exit = True
         t2.values = ["The iOS Community",
             "Crapple Inc.",
@@ -78,7 +83,7 @@ class MainForm(npyscreen.FormWithMenus):
             "EvenDev",
             "Aero"]
 
-        t3 = self.add(npyscreen.BoxTitle, max_width=35, relx=200, max_height=10 ,name="Menu:")
+        t3 = self.add(npyscreen.BoxTitle, max_width=35, relx=BoxTitlewidth, max_height=10 ,name="Menu:")
         t3.entry_widget.scroll_exit = True
         t3.values = ["Timeline",
             "Activity",
@@ -89,11 +94,14 @@ class MainForm(npyscreen.FormWithMenus):
 
 
 
-        self.add_handlers({"^T": self.change_forms})
+        self.add_handlers({"^T": self.exit_application})
 
     def on_ok(self):
         # Exit the application if the OK button is pressed.
-        self.parentApp.switchForm(None)
+        curses.beep()
+        self.parentApp.setNextForm(None)
+        self.editing = False
+        self.parentApp.switchFormNow()
 
     def change_forms(self, *args, **keywords):
         if self.name == "Timeline":
@@ -117,7 +125,7 @@ class MainForm(npyscreen.FormWithMenus):
         self.parentApp.setNextForm(None)
         self.editing = False
         self.parentApp.switchFormNow()
-
+        os.system('clear')  # on linux / os x
 
 def main():
     TA = MyTestApp()

@@ -1,4 +1,4 @@
 rm -rf PackageZIP
-zip -r OSX.zip ./*
+zip -x Keys.json -r OSX.zip ./*
 mkdir PackageZIP
 mv OSX.zip PackageZIP/
