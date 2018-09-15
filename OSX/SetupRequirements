@@ -91,7 +91,7 @@ elif [ "$choice" == "3" ]; then
     read -p "Access Secret ==> " access_secret
     read -p "Consumer Key ==> " consumer_key
     read -p "Consumer Secret ==> " consumer_secret
-    echo "Writign to config json..."
+    echo "Writing to config json..."
     cat >./Keys.json <<EOF
     {
       "access_key": "$Access_token",
